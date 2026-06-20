@@ -24,7 +24,12 @@ def require_jwt(required_role=None):
                 if not user:
                     return jsonify({'error': 'User not found'}), 404
                 
-                if required_role and user.get('role') != required_role:
+                actual_role = user.get('role')
+                if actual_role == 'seller':
+                    actual_role = 'buyer'
+                    user['role'] = 'buyer'
+                
+                if required_role and actual_role != required_role:
                     return jsonify({'error': f'{required_role} access required'}), 403
                 
                 request.uid = uid
@@ -42,16 +47,4 @@ def require_jwt(required_role=None):
         return decorated
     return decorator
 
-def require_approved_seller(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        return require_jwt(required_role='seller')(
-            lambda *a, **kw: check_approved_seller(f, *a, **kw)
-        )(*args, **kwargs)
-    return decorated
 
-def check_approved_seller(f, *args, **kwargs):
-    user = request.user
-    if not user.get('isApproved'):
-        return jsonify({'error': 'Account not approved yet. Please wait for admin approval.'}), 403
-    return f(*args, **kwargs)
