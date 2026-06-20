@@ -775,7 +775,7 @@ export default function Landing() {
               <span style={{ fontFamily:'Poppins,sans-serif', fontWeight:800, color: theme.text(dark), fontSize:'0.95rem' }}>AI Agro Assistant</span>
             </div>
             <p style={{ color: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.4)', fontSize:'0.8rem', textAlign:'center', margin:0 }}>
-              Built for NIT Project — Lokesh, Sarjan, Nishanth, Karthick<br />
+              Built for NIT Project — Karthickkumar, Gopika, Priyadharshini, VinithPrakash<br />
               Mentors: Dr. P. Thangavelu (Principal) · Dr. R. Senthil Kumar (HOD)
             </p>
             <div style={{ display:'flex', gap:22 }}>
