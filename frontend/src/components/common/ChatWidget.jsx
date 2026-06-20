@@ -123,7 +123,7 @@ export default function ChatWidget({ isOpen, onClose }) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Enter a message.."
-            className="w-full bg-gray-50 border border-gray-200 rounded-full pl-4 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-shadow"
+            className="w-full bg-gray-50 text-gray-900 border border-gray-200 rounded-full pl-4 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-shadow"
           />
           <button
             onClick={sendMessage}
