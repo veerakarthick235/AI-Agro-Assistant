@@ -179,7 +179,7 @@ def ask_agro_assistant():
         - *Buy/Sell Marketplace*: A platform where farmers can list their products (vegetables, fruits, grains) for sale, and buyers can browse and purchase them.
         - *Agri News*: Shows the latest agricultural news from India and around the world.
         - *Agri Loan Application*: A step-by-step form that allows farmers to apply for loans by uploading PAN Card, bank statement, and personal details. After checking eligibility, users can submit a final application. The interest rate is 1% per annum with monthly repayment terms.
-        - *About Us*: Information about the app's mission and the development team (Lokesh, Sarjan, Nishanth, Karthick). Our Mentors ...Dr.P.Thangavelu (Principal) and Dr.R.Senthil Kumar (HOD)
+        - *About Us*: Information about the app's mission and the development team (Karthickkumar, Gopika, Priyadharshini, VinithPrakash). Our Mentors ...Dr.P.Thangavelu (Principal) and Dr.R.Senthil Kumar (HOD)
 
         Based on this information, please answer the user's question. If the question is unrelated to the Agro Assistant application or its features, politely state that you can only answer questions about the application.
         """
