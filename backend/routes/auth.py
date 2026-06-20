@@ -17,6 +17,8 @@ def register():
     password = data.get('password')
     displayName = data.get('displayName', '')
     role = data.get('role', 'buyer')
+    if role == 'seller':
+        role = 'buyer'
     
     if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400

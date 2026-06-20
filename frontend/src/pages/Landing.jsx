@@ -752,10 +752,7 @@ export default function Landing() {
                 Join hundreds of Indian farmers already using AI Agro Assistant to sell smarter and earn more.
               </p>
               <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
-                <Link to="/register" className="l-cta-primary">Register as Seller <ArrowRight size={16} /></Link>
-                <Link to="/register?role=buyer" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.08)', border:'1.5px solid rgba(255,255,255,0.22)', color:'#fff', textDecoration:'none', fontWeight:700, padding:'14px 28px', borderRadius:14, fontSize:'0.95rem', transition:'all 0.25s' }}>
-                  Register as Buyer
-                </Link>
+                <Link to="/register" className="l-cta-primary">Get Started <ArrowRight size={16} /></Link>
               </div>
             </motion.div>
           </div>

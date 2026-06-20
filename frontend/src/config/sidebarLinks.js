@@ -31,7 +31,6 @@ export const SIDEBAR_LINKS = {
     { to: '/features/chatbot',       icon: '🤖', label: 'AI Chat' },
     { to: '/weather',                icon: '🌤️', label: 'Weather' },
     { to: '/features/community',     icon: '🌾', label: 'About' },
-    { to: '/become-seller',          icon: '🏪', label: 'Become a Seller' },
   ],
 
   admin: [

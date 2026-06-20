@@ -22,31 +22,27 @@ def get_stats():
     try:
         users = list(db.users.find())
         buyers = sum(1 for u in users if u.get('role') == 'buyer')
-        sellers = sum(1 for u in users if u.get('role') == 'seller')
+        
         delivery_agents = sum(1 for u in users if u.get('role') == 'delivery')
-        pending_sellers = sum(
-            1 for u in users
-            if u.get('role') == 'seller' and not u.get('isApproved', False)
-        )
-
+        
         orders = list(db.orders.find())
 
         total_revenue = sum(o.get('totalAmount', 0) for o in orders if o.get('paymentStatus') == 'paid')
         pending_orders = sum(1 for o in orders if o.get('status') == 'pending')
 
         products = list(db.products.find())
-        pending_products = sum(1 for p in products if not p.get('isApproved', False))
+        
 
         return jsonify({
             'totalUsers': len(users),
             'buyers': buyers,
-            'sellers': sellers,
+            
             'deliveryAgents': delivery_agents,
-            'pendingSellerApprovals': pending_sellers,
+            
             'totalOrders': len(orders),
             'pendingOrders': pending_orders,
             'totalRevenue': total_revenue,
-            'pendingProductApprovals': pending_products,
+            
             'totalProducts': len(products),
         })
     except Exception as e:
@@ -74,55 +70,6 @@ def get_users():
         return jsonify({'error': str(e)}), 500
 
 
-@admin_bp.route('/sellers/<seller_id>/approve', methods=['PUT'])
-@require_admin
-def approve_seller(seller_id):
-    """Approve a seller account."""
-    try:
-        doc = db.users.find_one({'_id': ObjectId(seller_id)})
-        if not doc:
-            return jsonify({'error': 'Seller not found'}), 404
-
-        db.users.update_one({'_id': ObjectId(seller_id)}, {'$set': {'isApproved': True, 'updatedAt': datetime.utcnow()}})
-
-        # Notify seller
-        db.notifications.insert_one({
-            'userId': seller_id,
-            'type': 'approval',
-            'title': '🎉 Seller Account Approved!',
-            'message': 'Your seller account has been approved. You can now list products!',
-            'isRead': False,
-            'orderId': None,
-            'createdAt': datetime.utcnow(),
-        })
-
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@admin_bp.route('/sellers/<seller_id>/reject', methods=['PUT'])
-@require_admin
-def reject_seller(seller_id):
-    """Reject a seller account with a reason."""
-    data = request.get_json()
-    reason = data.get('reason', 'Application did not meet requirements.')
-    try:
-        db.users.update_one({'_id': ObjectId(seller_id)}, {'$set': {'isApproved': False, 'isActive': False, 'updatedAt': datetime.utcnow()}})
-
-        db.notifications.insert_one({
-            'userId': seller_id,
-            'type': 'approval',
-            'title': 'Seller Application Update',
-            'message': f'Your seller application was not approved. Reason: {reason}',
-            'isRead': False,
-            'orderId': None,
-            'createdAt': datetime.utcnow(),
-        })
-
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 
 @admin_bp.route('/users/<user_id>/toggle-active', methods=['PUT'])
@@ -210,60 +157,57 @@ def get_all_products():
         return jsonify({'error': str(e)}), 500
 
 
-@admin_bp.route('/products/<product_id>/approve', methods=['PUT'])
+
+@admin_bp.route('/products', methods=['POST'])
 @require_admin
-def approve_product(product_id):
-    """Approve a product — makes it live in the buyer marketplace."""
-    try:
-        doc = db.products.find_one({'_id': ObjectId(product_id)})
-        if not doc:
-            return jsonify({'error': 'Product not found'}), 404
-
-        db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'isApproved': True, 'updatedAt': datetime.utcnow()}})
-
-        # Notify seller
-        db.notifications.insert_one({
-            'userId': doc.get('sellerId'),
-            'type': 'approval',
-            'title': '✅ Product Approved!',
-            'message': f"Your product '{doc.get('name')}' is now live in the marketplace!",
-            'isRead': False,
-            'orderId': None,
-            'productId': product_id,
-            'createdAt': datetime.utcnow(),
-        })
-
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@admin_bp.route('/products/<product_id>/reject', methods=['PUT'])
-@require_admin
-def reject_product(product_id):
-    """Reject a product with a reason."""
+def add_product():
     data = request.get_json()
-    reason = data.get('reason', 'Product did not meet listing standards.')
+    product = {
+        'sellerId': 'admin',
+        'sellerName': 'AgroPulse Admin',
+        'name': data.get('name'),
+        'description': data.get('description', ''),
+        'category': data.get('category', 'vegetables'),
+        'price': float(data.get('price', 0)),
+        'unit': data.get('unit', 'kg'),
+        'stock': int(data.get('stock', 0)),
+        'imageUrl': data.get('imageUrl', ''),
+        'images': data.get('images', []),
+        'isApproved': True,
+        'isAvailable': True,
+        'rating': 0,
+        'reviewCount': 0,
+        'location': data.get('location', ''),
+        'tags': data.get('tags', []),
+        'createdAt': datetime.utcnow(),
+        'updatedAt': datetime.utcnow(),
+    }
     try:
-        doc = db.products.find_one({'_id': ObjectId(product_id)})
-        if not doc:
-            return jsonify({'error': 'Product not found'}), 404
+        result = db.products.insert_one(product)
+        return jsonify({'success': True, 'productId': str(result.inserted_id)}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-        db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'isApproved': False, 'isAvailable': False, 'updatedAt': datetime.utcnow()}})
-
-        db.notifications.insert_one({
-            'userId': doc.get('sellerId'),
-            'type': 'approval',
-            'title': 'Product Listing Update',
-            'message': f"'{doc.get('name')}' was not approved. Reason: {reason}",
-            'isRead': False,
-            'orderId': None,
-            'createdAt': datetime.utcnow(),
-        })
-
+@admin_bp.route('/products/<product_id>', methods=['PUT'])
+@require_admin
+def update_product(product_id):
+    data = request.get_json()
+    try:
+        data['updatedAt'] = datetime.utcnow()
+        db.products.update_one({'_id': ObjectId(product_id)}, {'$set': data})
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/products/<product_id>', methods=['DELETE'])
+@require_admin
+def delete_product(product_id):
+    try:
+        db.products.delete_one({'_id': ObjectId(product_id)})
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
 @admin_bp.route('/products/<product_id>', methods=['PUT'])

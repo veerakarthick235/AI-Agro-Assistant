@@ -30,18 +30,11 @@ import OrderTracking    from './pages/buyer/OrderTracking';
 import BuyerOrders      from './pages/buyer/BuyerOrders';
 import BuyerProfile     from './pages/buyer/BuyerProfile';
 
-// ── Seller ────────────────────────────────────────────────────────────────────
-import SellerDashboard from './pages/seller/SellerDashboard';
-import SellerProducts  from './pages/seller/SellerProducts';
-import AddProduct      from './pages/seller/AddProduct';
-import SellerOrders    from './pages/seller/SellerOrders';
-import SellerProfile   from './pages/seller/SellerProfile';
-import BecomeSeller    from './pages/seller/BecomeSeller';
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminSellers   from './pages/admin/AdminSellers';
 import AdminProducts  from './pages/admin/AdminProducts';
+import AdminAddProduct from './pages/admin/AdminAddProduct';
 import AdminOrders    from './pages/admin/AdminOrders';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminDelivery  from './pages/admin/AdminDelivery';
@@ -80,23 +73,12 @@ function AuthRoute({ children }) {
   return children;
 }
 
-// Seller guard with pending-seller support
-// Pending sellers (role=seller, isApproved=false) are redirected to BecomeSeller
-function SellerRoute({ children }) {
-  const { user, userProfile, loading } = useAuth();
-  if (loading) return <Spinner />;
-  if (!user)   return <Navigate to="/login" replace />;
-  if (userProfile?.role !== 'seller') return <Navigate to="/unauthorized" replace />;
-  // Approved seller → render, pending → BecomeSeller
-  if (!userProfile?.isApproved) return <Navigate to="/become-seller" replace />;
-  return children;
-}
 
 function RoleRedirect() {
   const { userProfile, loading } = useAuth();
   if (loading) return <Spinner />;
   if (!userProfile) return <Navigate to="/login" />;
-  const map = { buyer: '/dashboard', seller: '/seller', admin: '/admin', delivery: '/delivery' };
+  const map = { buyer: '/dashboard', admin: '/admin', delivery: '/delivery' };
   return <Navigate to={map[userProfile.role] || '/dashboard'} replace />;
 }
 
@@ -111,9 +93,6 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/auth-redirect" element={<RoleRedirect />} />
 
-      {/* ── Become a Seller (buyer requesting upgrade) ────────────────── */}
-      <Route path="/become-seller" element={<AuthRoute><BecomeSeller /></AuthRoute>} />
-
       {/* ── Features — all logged-in users ───────────────────────────── */}
       <Route path="/weather"                element={<WeatherPage />} />
       <Route path="/features/crop-disease"  element={<AuthRoute><CropDisease /></AuthRoute>} />
@@ -125,28 +104,21 @@ function AppRoutes() {
       <Route path="/features/community"     element={<AuthRoute><Community /></AuthRoute>} />
 
       {/* ── Buyer ────────────────────────────────────────────────────── */}
-      <Route path="/dashboard"                element={<PrivateRoute allowedRoles={['buyer', 'seller']}><FeatureDashboard /></PrivateRoute>} />
-      <Route path="/shop"                     element={<PrivateRoute allowedRoles={['buyer', 'seller']}><BuyerHome /></PrivateRoute>} />
-      <Route path="/product/:id"              element={<PrivateRoute allowedRoles={['buyer', 'seller']}><ProductDetail /></PrivateRoute>} />
-      <Route path="/checkout"                 element={<PrivateRoute allowedRoles={['buyer', 'seller']}><Checkout /></PrivateRoute>} />
-      <Route path="/orders"                   element={<PrivateRoute allowedRoles={['buyer', 'seller']}><BuyerOrders /></PrivateRoute>} />
-      <Route path="/orders/:orderId"          element={<PrivateRoute allowedRoles={['buyer', 'seller']}><OrderTracking /></PrivateRoute>} />
-      <Route path="/profile"                  element={<PrivateRoute allowedRoles={['buyer', 'seller']}><BuyerProfile /></PrivateRoute>} />
-      <Route path="/:section"                 element={<PrivateRoute allowedRoles={['buyer', 'seller']}><FeatureDashboard /></PrivateRoute>} />
-
-      {/* ── Seller ───────────────────────────────────────────────────── */}
-      <Route path="/seller"                   element={<SellerRoute><SellerDashboard /></SellerRoute>} />
-      <Route path="/seller/products"          element={<SellerRoute><SellerProducts /></SellerRoute>} />
-      <Route path="/seller/products/add"      element={<SellerRoute><AddProduct /></SellerRoute>} />
-      <Route path="/seller/products/edit/:id" element={<SellerRoute><AddProduct /></SellerRoute>} />
-      <Route path="/seller/orders"            element={<SellerRoute><SellerOrders /></SellerRoute>} />
-      <Route path="/seller/profile"           element={<SellerRoute><SellerProfile /></SellerRoute>} />
+      <Route path="/dashboard"                element={<PrivateRoute allowedRoles={['buyer']}><FeatureDashboard /></PrivateRoute>} />
+      <Route path="/shop"                     element={<PrivateRoute allowedRoles={['buyer']}><BuyerHome /></PrivateRoute>} />
+      <Route path="/product/:id"              element={<PrivateRoute allowedRoles={['buyer']}><ProductDetail /></PrivateRoute>} />
+      <Route path="/checkout"                 element={<PrivateRoute allowedRoles={['buyer']}><Checkout /></PrivateRoute>} />
+      <Route path="/orders"                   element={<PrivateRoute allowedRoles={['buyer']}><BuyerOrders /></PrivateRoute>} />
+      <Route path="/orders/:orderId"          element={<PrivateRoute allowedRoles={['buyer']}><OrderTracking /></PrivateRoute>} />
+      <Route path="/profile"                  element={<PrivateRoute allowedRoles={['buyer']}><BuyerProfile /></PrivateRoute>} />
+      <Route path="/:section"                 element={<PrivateRoute allowedRoles={['buyer']}><FeatureDashboard /></PrivateRoute>} />
 
       {/* ── Admin ────────────────────────────────────────────────────── */}
       <Route path="/admin"            element={<PrivateRoute allowedRoles={['admin']}><AdminDashboard /></PrivateRoute>} />
       <Route path="/admin/users"      element={<PrivateRoute allowedRoles={['admin']}><AdminUsers /></PrivateRoute>} />
-      <Route path="/admin/sellers"    element={<PrivateRoute allowedRoles={['admin']}><AdminSellers /></PrivateRoute>} />
       <Route path="/admin/products"   element={<PrivateRoute allowedRoles={['admin']}><AdminProducts /></PrivateRoute>} />
+      <Route path="/admin/products/add"   element={<PrivateRoute allowedRoles={['admin']}><AdminAddProduct /></PrivateRoute>} />
+      <Route path="/admin/products/edit/:id" element={<PrivateRoute allowedRoles={['admin']}><AdminAddProduct /></PrivateRoute>} />
       <Route path="/admin/orders"     element={<PrivateRoute allowedRoles={['admin']}><AdminOrders /></PrivateRoute>} />
       <Route path="/admin/analytics"  element={<PrivateRoute allowedRoles={['admin']}><AdminAnalytics /></PrivateRoute>} />
       <Route path="/admin/delivery"   element={<PrivateRoute allowedRoles={['admin']}><AdminDelivery /></PrivateRoute>} />

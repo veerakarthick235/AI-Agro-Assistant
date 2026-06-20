@@ -17,7 +17,7 @@ const STEPS = [
   { n: 3, label: 'Review & Submit' },
 ];
 
-export default function AddProduct() {
+export default function AdminAddProduct() {
   const { userProfile } = useAuth();
   const { id: editId }  = useParams();
   const navigate        = useNavigate();
@@ -31,7 +31,7 @@ export default function AddProduct() {
   const [form, setForm] = useState({
     name: '', description: '', category: 'vegetables', price: '',
     unit: 'kg', stock: '',
-    sellerLocation: userProfile?.farmLocation || userProfile?.sellerProfile?.location || '',
+    sellerLocation: '',
     tags: '',
   });
 
@@ -120,14 +120,14 @@ export default function AddProduct() {
       };
 
       if (editId) {
-        await api.put(`/api/seller/products/${editId}`, productData);
+        await api.put(`/api/admin/products/${editId}`, productData);
         toast.success('Product updated! Awaiting admin approval.');
       } else {
-        await api.post('/api/seller/products', productData);
+        await api.post('/api/admin/products', productData);
         toast.success('Product submitted for review! 🌾');
       }
 
-      navigate('/seller/products');
+      navigate('/admin/products');
     } catch (e) {
       toast.error(e.response?.data?.error || `Failed: ${e.message}`);
     } finally {

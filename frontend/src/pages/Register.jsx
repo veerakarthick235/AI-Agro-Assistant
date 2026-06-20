@@ -343,7 +343,7 @@ export default function Register() {
             </p>
 
             <p className="reg-note" style={{ textAlign: 'center', fontSize: '0.73rem', color: '#9ca3af', lineHeight: 1.5 }}>
-              ℹ️ All new accounts start as Buyer. You can upgrade to Seller from your dashboard.
+              ℹ️ Welcome to the platform!
             </p>
           </div>
         </div>

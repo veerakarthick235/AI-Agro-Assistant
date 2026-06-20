@@ -37,7 +37,6 @@ export default function Navbar() {
 
   const dashboardLink = {
     buyer: '/dashboard',
-    seller: userProfile?.isApproved ? '/seller' : '/dashboard',
     admin: '/admin',
     delivery: '/delivery',
   }[role] || '/dashboard';

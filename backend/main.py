@@ -27,15 +27,13 @@ CORS(app, origins=[
 # ─── Register Blueprints ────────────────────────────────────────────────────
 try:
     from routes.auth import auth_bp
-    from routes.seller import seller_bp
-    from routes.buyer import buyer_bp
+        from routes.buyer import buyer_bp
     from routes.admin import admin_bp
     from routes.delivery import delivery_bp
     from routes.payment import payment_bp
 
     app.register_blueprint(auth_bp)
-    app.register_blueprint(seller_bp)
-    app.register_blueprint(buyer_bp)
+        app.register_blueprint(buyer_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(delivery_bp)
     app.register_blueprint(payment_bp)

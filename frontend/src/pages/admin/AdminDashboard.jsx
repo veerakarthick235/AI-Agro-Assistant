@@ -69,10 +69,10 @@ export default function AdminDashboard() {
   });
 
   const stats = [
-    { label: 'Total Users', value: statsData.totalUsers, icon: <Users size={20} />, color: 'text-blue-600 bg-blue-50', sub: `${statsData.buyers} buyers, ${statsData.sellers} sellers` },
+    { label: 'Total Users', value: statsData.totalUsers, icon: <Users size={20} />, color: 'text-blue-600 bg-blue-50', sub: `${statsData.buyers} buyers` },
     { label: 'Total Revenue', value: formatCurrency(statsData.totalRevenue), icon: <DollarSign size={20} />, color: 'text-green-600 bg-green-50', sub: 'from paid orders' },
     { label: 'Pending Orders', value: statsData.pendingOrders, icon: <ShoppingBag size={20} />, color: 'text-orange-600 bg-orange-50', sub: 'awaiting confirmation' },
-    { label: 'Pending Approvals', value: statsData.pendingSellerApprovals + statsData.pendingProductApprovals, icon: <Clock size={20} />, color: 'text-yellow-600 bg-yellow-50', sub: `${statsData.pendingSellerApprovals} sellers, ${statsData.pendingProductApprovals} products` },
+    { label: 'Pending Approvals', value: statsData.pendingProductApprovals, icon: <Clock size={20} />, color: 'text-yellow-600 bg-yellow-50', sub: `${statsData.pendingProductApprovals} products` },
     { label: 'Total Products', value: statsData.totalProducts, icon: <Package size={20} />, color: 'text-purple-600 bg-purple-50', sub: `${statsData.totalProducts - statsData.pendingProductApprovals} live` },
     { label: 'Delivery Agents', value: statsData.deliveryAgents, icon: <Truck size={20} />, color: 'text-teal-600 bg-teal-50', sub: 'registered agents' },
   ];
@@ -91,17 +91,16 @@ export default function AdminDashboard() {
           </div>
 
           {/* Approval Alerts */}
-          {(statsData.pendingSellerApprovals > 0 || statsData.pendingProductApprovals > 0) && (
+          {(statsData.pendingProductApprovals > 0) && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">⚠️</span>
                 <div>
                   <p className="font-semibold text-amber-800">Pending Approvals</p>
-                  <p className="text-amber-600 text-sm">{statsData.pendingSellerApprovals} seller{statsData.pendingSellerApprovals !== 1 ? 's' : ''} and {statsData.pendingProductApprovals} product{statsData.pendingProductApprovals !== 1 ? 's' : ''} awaiting review</p>
+                  <p className="text-amber-600 text-sm">{statsData.pendingProductApprovals} product{statsData.pendingProductApprovals !== 1 ? 's' : ''} awaiting review</p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Link to="/admin/sellers" className="btn-secondary text-sm py-2">Review Sellers</Link>
                 <Link to="/admin/products" className="btn-primary text-sm py-2">Review Products</Link>
               </div>
             </div>
@@ -179,7 +178,6 @@ export default function AdminDashboard() {
                   <tr className="text-left text-gray-400 border-b border-gray-50">
                     <th className="pb-3 font-medium">Order ID</th>
                     <th className="pb-3 font-medium">Buyer</th>
-                    <th className="pb-3 font-medium">Seller</th>
                     <th className="pb-3 font-medium">Amount</th>
                     <th className="pb-3 font-medium">Status</th>
                     <th className="pb-3 font-medium">Date</th>

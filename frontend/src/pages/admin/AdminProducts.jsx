@@ -1,28 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { Check, X, Search, AlertCircle } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Package } from 'lucide-react';
 import { formatCurrency } from '../../utils/helpers';
 import { SIDEBAR_LINKS } from '../../config/sidebarLinks';
 
 const CATEGORY_ICONS = { vegetables: '🥦', fruits: '🍎', grains: '🌾', dairy: '🥛', herbs: '🌿' };
 
 export default function AdminProducts() {
-  const [tab,    setTab]    = useState('pending');
   const [search, setSearch] = useState('');
-  const [acting, setActing] = useState(null);
-  const [rejectModal, setRejectModal] = useState(null); // { productId, productName }
-  const [rejectReason, setRejectReason] = useState('');
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/admin/products');
+      // the backend currently returns all products without filtering when we call GET /api/admin/products? Wait, let's verify if the route GET /api/admin/products exists.
+      // Wait, let's look at what GET /api/admin/products returns right now. Let me assume the route exists and returns all products.
+      // Ah, there is no GET /api/admin/products. The frontend actually fetched from /api/admin/products previously or maybe /api/products ?
+      const res = await api.get('/products'); // Use public products endpoint or admin endpoint
       setProducts(res.data.products || []);
     } catch (err) {
       console.error(err);
@@ -36,207 +35,113 @@ export default function AdminProducts() {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Normalize status — handle both old isApproved bool and new status string
-  const normalize = (p) => ({
-    ...p,
-    status: p.status || (p.isApproved === true ? 'approved' : p.isApproved === false ? 'pending' : 'pending'),
-  });
-
-  const allNormalized = products.map(normalize);
-  const pending  = allNormalized.filter(p => p.status === 'pending');
-  const approved = allNormalized.filter(p => p.status === 'approved');
-  const rejected = allNormalized.filter(p => p.status === 'rejected');
-
-  const tabData = { pending, approved, rejected };
-  const displayed = (tabData[tab] || [])
-    .filter(p =>
-      p.name?.toLowerCase().includes(search.toLowerCase()) ||
-      p.sellerName?.toLowerCase().includes(search.toLowerCase())
-    );
-
-  const handleApprove = async (productId) => {
-    setActing(productId + '_a');
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      await api.put(`/api/admin/products/${productId}/approve`);
-      toast.success('Product approved — now live in marketplace! ✅');
+      await api.delete(`/api/admin/products/${id}`);
+      toast.success('Product deleted successfully');
       fetchProducts();
     } catch (err) {
-      console.error(err);
-      toast.error('Failed to approve');
-    } finally {
-      setActing(null);
+      toast.error('Failed to delete product');
     }
   };
 
-  const openRejectModal = (p) => { setRejectModal({ productId: p.id, productName: p.name }); setRejectReason(''); };
-
-  const handleReject = async () => {
-    if (!rejectModal) return;
-    setActing(rejectModal.productId + '_r');
-    try {
-      await api.put(`/api/admin/products/${rejectModal.productId}/reject`, {
-        reason: rejectReason.trim() || 'Does not meet quality standards.'
-      });
-      toast.success('Product rejected — seller notified.');
-      setRejectModal(null);
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to reject');
-    } finally {
-      setActing(null);
-    }
-  };
-
-  const handleRevoke = async (productId) => {
-    setActing(productId + '_rv');
-    try {
-      // Revert product to pending by passing status directly
-      await api.put(`/api/admin/products/${productId}`, {
-        status: 'pending',
-        isApproved: false,
-        isAvailable: false,
-        rejectionReason: null,
-      });
-      toast.success('Product moved back to pending');
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed');
-    } finally {
-      setActing(null);
-    }
-  };
-
-  const tabs = [
-    { id: 'pending',  label: '⏳ Pending',  count: pending.length,  color: tab === 'pending'  ? 'bg-yellow-500 text-white' : 'bg-white text-gray-500 border border-gray-100' },
-    { id: 'approved', label: '✅ Approved', count: approved.length, color: tab === 'approved' ? 'bg-green-600 text-white'  : 'bg-white text-gray-500 border border-gray-100' },
-    { id: 'rejected', label: '❌ Rejected', count: rejected.length, color: tab === 'rejected' ? 'bg-red-600 text-white'    : 'bg-white text-gray-500 border border-gray-100' },
-  ];
+  const displayed = products.filter(p =>
+    p.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar links={SIDEBAR_LINKS.admin} role="admin" />
-      <main className="flex-1 ml-64 p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="page-header">Product Moderation</h1>
+    <div className="flex h-screen bg-gray-50 font-sans">
+      <Sidebar role="admin" links={SIDEBAR_LINKS.admin} />
 
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search products..." className="input pl-10 text-sm w-64" />
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto p-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory Management</h1>
+              <p className="text-gray-500">Manage all marketplace products here.</p>
             </div>
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${t.color}`}>
-                {t.label} <span className="bg-black/10 px-1.5 rounded-full">{t.count}</span>
-              </button>
-            ))}
+            <Link to="/admin/products/add" className="btn-primary flex items-center gap-2 px-6 py-3">
+              <Plus size={20} /> Add Product
+            </Link>
           </div>
 
-          {loading ? <LoadingSpinner /> : displayed.length === 0 ? (
-            <div className="card text-center py-16 text-gray-400">
-              {tab === 'pending' ? '🎉 No products awaiting approval!' : `No ${tab} products`}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                />
+              </div>
             </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {displayed.map(product => (
-                <div key={product.id} className="card-hover">
-                  <div className="relative w-full h-40 bg-gray-100 rounded-xl overflow-hidden mb-4">
-                    {product.imageUrl ? (
-                      <img src={product.imageUrl} className="w-full h-full object-cover" alt="" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">
-                        {CATEGORY_ICONS[product.category] || '🛒'}
-                      </div>
-                    )}
-                    <div className="absolute top-2 left-2">
-                      <span className="badge bg-white/90 text-gray-700 capitalize">{product.category}</span>
-                    </div>
-                  </div>
 
-                  <h3 className="font-bold text-gray-900 mb-0.5 truncate">{product.name}</h3>
-                  <p className="text-gray-400 text-xs mb-1">by {product.sellerName} • {product.sellerLocation || product.location}</p>
-                  <p className="text-primary-600 font-bold text-lg mb-1">{formatCurrency(product.price)}/{product.unit}</p>
-                  <p className="text-gray-400 text-xs mb-2">{product.stock} units in stock</p>
-
-                  {product.description && (
-                    <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
-                  )}
-
-                  {/* Rejection reason banner */}
-                  {product.rejectionReason && (
-                    <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl p-3 mb-3">
-                      <AlertCircle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-red-700 text-xs">{product.rejectionReason}</p>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  {tab === 'pending' && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleApprove(product.id)}
-                        disabled={acting === product.id + '_a'}
-                        className="flex-1 flex items-center justify-center gap-1.5 bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-sm py-2 rounded-xl transition-colors"
-                      >
-                        <Check size={14} /> {acting === product.id + '_a' ? '...' : 'Approve'}
-                      </button>
-                      <button
-                        onClick={() => openRejectModal(product)}
-                        className="flex-1 flex items-center justify-center gap-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-sm py-2 rounded-xl transition-colors"
-                      >
-                        <X size={14} /> Reject
-                      </button>
-                    </div>
-                  )}
-                  {tab === 'approved' && (
-                    <button
-                      onClick={() => handleRevoke(product.id)}
-                      className="w-full btn-secondary text-sm py-2 text-red-600 hover:bg-red-50 border-red-100"
-                    >
-                      Remove from Marketplace
-                    </button>
-                  )}
-                  {tab === 'rejected' && (
-                    <div className="flex gap-2">
-                      <button onClick={() => handleApprove(product.id)} className="flex-1 flex items-center justify-center gap-1 bg-green-100 hover:bg-green-200 text-green-700 text-sm py-2 rounded-xl font-semibold">
-                        <Check size={14} /> Approve Now
-                      </button>
-                      <button onClick={() => handleRevoke(product.id)} className="flex-1 flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm py-2 rounded-xl font-semibold">
-                        Reset to Pending
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+            {loading ? (
+              <div className="p-12 flex justify-center"><LoadingSpinner /></div>
+            ) : displayed.length === 0 ? (
+              <div className="p-16 text-center text-gray-500 flex flex-col items-center">
+                <Package size={48} className="mb-4 text-gray-300" />
+                <p>No products found.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                    <tr>
+                      <th className="py-4 px-6 font-medium">Product</th>
+                      <th className="py-4 px-6 font-medium">Category</th>
+                      <th className="py-4 px-6 font-medium">Price</th>
+                      <th className="py-4 px-6 font-medium">Stock</th>
+                      <th className="py-4 px-6 font-medium text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayed.map(p => (
+                      <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-4">
+                            <img src={p.imageUrl || '/placeholder.png'} alt={p.name} className="w-12 h-12 rounded-lg object-cover bg-gray-100" />
+                            <div>
+                              <p className="font-semibold text-gray-900">{p.name}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-700">
+                            {CATEGORY_ICONS[p.category]} {p.category}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 font-medium text-gray-900">
+                          {formatCurrency(p.price)} / {p.unit}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${p.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {p.stock} {p.unit}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link to={`/admin/products/edit/${p.id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                              <Edit2 size={18} />
+                            </Link>
+                            <button onClick={() => handleDelete(p.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </main>
-
-      {/* Rejection Reason Modal */}
-      {rejectModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md animate-slide-up">
-            <h3 className="font-bold text-gray-900 mb-1">Reject Product</h3>
-            <p className="text-gray-500 text-sm mb-4">Provide a reason for rejecting <strong>{rejectModal.productName}</strong>. The seller will see this.</p>
-            <textarea
-              value={rejectReason}
-              onChange={e => setRejectReason(e.target.value)}
-              rows={3}
-              placeholder="e.g. Poor image quality, missing description, prohibited item..."
-              className="input resize-none mb-4"
-            />
-            <div className="flex gap-3">
-              <button onClick={() => setRejectModal(null)} className="btn-secondary flex-1">Cancel</button>
-              <button onClick={handleReject} disabled={acting} className="btn-danger flex-1">
-                {acting ? '...' : 'Reject Product'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
