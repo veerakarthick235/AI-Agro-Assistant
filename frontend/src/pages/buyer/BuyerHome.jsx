@@ -234,7 +234,7 @@ export default function BuyerHome() {
                 <button onClick={() => setSellModalOpen(true)} className="hidden sm:flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-xs font-bold px-3 py-1.5 rounded-full transition-all shadow-md cursor-pointer">
                   🛒 Sell Your Product
                 </button>
-                <button onClick={() => setWishlistOpen(true)} className="hidden sm:flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer">} className="hidden sm:flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer">
+                <button onClick={() => setWishlistOpen(true)} className="hidden sm:flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-all cursor-pointer">
                   <Heart size={12} /> Wishlist
                 </button>
                 <span className="bg-green-400 text-green-900 text-xs font-bold px-3 py-1 rounded-full animate-pulse hidden sm:block">● LIVE</span>
