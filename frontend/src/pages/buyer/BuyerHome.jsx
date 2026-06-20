@@ -421,26 +421,26 @@ export default function BuyerHome() {
               <form onSubmit={handleSellSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
-                  <input required className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all" value={newProduct.name} onChange={e=>setNewProduct({...newProduct, name: e.target.value})} placeholder="e.g. Fresh Organic Tomatoes" />
+                  <input required className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all" value={newProduct.name} onChange={e=>setNewProduct({...newProduct, name: e.target.value})} placeholder="e.g. Fresh Organic Tomatoes" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                  <textarea required rows={2} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.description} onChange={e=>setNewProduct({...newProduct, description: e.target.value})} placeholder="Describe the quality, farming method, etc." />
+                  <textarea required rows={2} className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.description} onChange={e=>setNewProduct({...newProduct, description: e.target.value})} placeholder="Describe the quality, farming method, etc." />
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Price (₹)</label>
-                    <input required type="number" min="1" className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} placeholder="100" />
+                    <input required type="number" min="1" className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.price} onChange={e=>setNewProduct({...newProduct, price: e.target.value})} placeholder="100" />
                   </div>
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Stock</label>
-                    <input required type="number" min="1" className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.stock} onChange={e=>setNewProduct({...newProduct, stock: e.target.value})} placeholder="50" />
+                    <input required type="number" min="1" className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.stock} onChange={e=>setNewProduct({...newProduct, stock: e.target.value})} placeholder="50" />
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Unit</label>
-                    <select className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none" value={newProduct.unit} onChange={e=>setNewProduct({...newProduct, unit: e.target.value})}>
+                    <select className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl outline-none" value={newProduct.unit} onChange={e=>setNewProduct({...newProduct, unit: e.target.value})}>
                       <option value="kg">kg</option>
                       <option value="gram">gram</option>
                       <option value="piece">piece</option>
@@ -450,7 +450,7 @@ export default function BuyerHome() {
                   </div>
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                    <select className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none" value={newProduct.category} onChange={e=>setNewProduct({...newProduct, category: e.target.value})}>
+                    <select className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl outline-none" value={newProduct.category} onChange={e=>setNewProduct({...newProduct, category: e.target.value})}>
                       <option value="vegetables">Vegetables</option>
                       <option value="fruits">Fruits</option>
                       <option value="grains">Grains</option>
@@ -461,7 +461,7 @@ export default function BuyerHome() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL (Optional)</label>
-                  <input type="url" className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.imageUrl} onChange={e=>setNewProduct({...newProduct, imageUrl: e.target.value})} placeholder="https://example.com/image.jpg" />
+                  <input type="url" className="w-full px-4 py-2 bg-gray-50 text-gray-900 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" value={newProduct.imageUrl} onChange={e=>setNewProduct({...newProduct, imageUrl: e.target.value})} placeholder="https://example.com/image.jpg" />
                 </div>
                 <div className="pt-4">
                   <button disabled={submitting} type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary-500/30">
