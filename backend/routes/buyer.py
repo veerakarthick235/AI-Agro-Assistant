@@ -13,7 +13,39 @@ require_buyer = require_jwt(required_role='buyer')
 require_auth = require_jwt()
 
 
+
+@buyer_bp.route('/products', methods=['POST'])
+@require_buyer
+def add_buyer_product():
+    data = request.get_json()
+    required = ['name', 'description', 'price', 'stock', 'unit', 'category']
+    for r in required:
+        if not data.get(r):
+            return jsonify({'error': f'Missing {r}'}), 400
+            
+    product = {
+        'name': data['name'],
+        'description': data['description'],
+        'price': float(data['price']),
+        'stock': int(data['stock']),
+        'unit': data['unit'],
+        'category': data['category'].lower(),
+        'imageUrl': data.get('imageUrl', ''),
+        'sellerId': request.uid,
+        'sellerName': request.user.get('displayName', 'Unknown User'),
+        'sellerLocation': request.user.get('address', 'Unknown Location'),
+        'isApproved': True,
+        'isAvailable': True,
+        'createdAt': datetime.utcnow()
+    }
+    
+    res = db.products.insert_one(product)
+    product['id'] = str(res.inserted_id)
+    product.pop('_id', None)
+    return jsonify(product), 201
+
 # ─── Products (public browse) ────────────────────────────────────────────────
+
 
 @buyer_bp.route('/products', methods=['GET'])
 def get_products():
