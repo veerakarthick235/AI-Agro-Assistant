@@ -78,10 +78,3 @@ Start the Vite development server:
 ```bash
 npm run dev
 ```
-
-## 🤝 Team
-Built for NIT Project by:
-* Karthickkumar
-* Gopika
-* Priyadharshini
-* Vinithprakash
